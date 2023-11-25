@@ -1,13 +1,25 @@
 ### Teller App
 _It's not a computer, It's a Teller_
 
+## Prerequisites
+libpqxx:
+```shell
+export C_INCLUDE_PATH="/opt/homebrew/opt/libpq/include:/opt/homebrew/Cellar/libpqxx/include" 
+```
+
+postgresql:
+```shell
+psql -d postgres -c "CREATE DATABASE test;"
+psql -d test -c "ALTER ROLE postgres WITH LOGIN CREATEDB;"
+```
+
 # DB
 * Catalogue
 * Stock (optional)
 * Invoice
 * Payments
 * Reports (optional?)
-
+ 
 # Payment Options
 * LN
 * Cash

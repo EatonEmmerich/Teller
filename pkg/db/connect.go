@@ -10,9 +10,13 @@ import (
 
 var host = flag.String("databaseHost", "localhost", "the host dns")
 var port = flag.Int("databasePort", 5432, "The database network port")
-var database = flag.String("databaseName", "cloud_storage", "The name of the db")
+var database = flag.String("databaseName", "teller", "The name of the db")
 var user = flag.String("databaseUser", "postgres", "The name of the db user for the app")
 var password = flag.String("databasePassword", "postgres", "The password of the db user specified in 'user' parameter")
+
+func InitConnection() (*sql.DB, error) {
+	return Connect(*host, *port, *user, *password, *database)
+}
 
 func Connect(host string, port int, user string, password string, database string) (*sql.DB, error) {
 	return sql.Open("postgres", fmt.Sprintf("host=%s port=%d user=%s "+
