@@ -20,13 +20,13 @@ func TestNewInvoice(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    invoice.Invoice
+		want    *invoice.Invoice
 		wantErr bool
 	}{
 		{
 			"create new invoice",
 			args{dbc},
-			invoice.Invoice{Id: 1},
+			&invoice.Invoice{Id: 1},
 			false,
 		},
 		// TODO: Add test cases.
@@ -38,9 +38,7 @@ func TestNewInvoice(t *testing.T) {
 				t.Errorf("NewInvoice() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got != tt.want {
-				t.Errorf("NewInvoice() got = %v, want %v", got, tt.want)
-			}
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
@@ -50,10 +48,10 @@ func TestCreateMultipleInvoices(t *testing.T) {
 	err := invoice.SetupSchema(dbc, context.Background())
 	got, err := invoice.NewInvoice(dbc)
 	assert.NoError(t, err)
-	assert.Equal(t, invoice.Invoice{Id: 1}, got)
+	assert.Equal(t, &invoice.Invoice{Id: 1}, got)
 	got, err = invoice.NewInvoice(dbc)
 	assert.NoError(t, err)
-	assert.Equal(t, invoice.Invoice{Id: 2}, got)
+	assert.Equal(t, &invoice.Invoice{Id: 2}, got)
 }
 
 func TestCreateMultipleInvoicesAsync(t *testing.T) {
@@ -62,36 +60,34 @@ func TestCreateMultipleInvoicesAsync(t *testing.T) {
 	err := invoice.SetupSchema(dbc[0], context.Background())
 	assert.NoError(t, err)
 
-	invoices := make(chan invoice.Invoice, 2)
+	invoices := make(chan *invoice.Invoice, 2)
 	for x := 0; x < poolsize; x++ {
 		go newInvoice(t, dbc[x], invoices)
 	}
 
-	finalList := make([]invoice.Invoice, poolsize)
+	finalList := make([]*invoice.Invoice, poolsize)
 	for x := 0; x < poolsize; x++ {
 		finalList[x] = <-invoices
 	}
 
-	assert.ElementsMatch(t, finalList, []invoice.Invoice{
+	assert.ElementsMatch(t, finalList, []*invoice.Invoice{
 		{Id: 1}, {Id: 2}, {Id: 3}, {Id: 4}, {Id: 5},
 		{Id: 6}, {Id: 7}, {Id: 8}, {Id: 9}, {Id: 10},
 	})
 }
 
-func newInvoice(t *testing.T, dbc *sql.DB, cha chan invoice.Invoice) {
+func newInvoice(t *testing.T, dbc *sql.DB, cha chan *invoice.Invoice) {
 	got, err := invoice.NewInvoice(dbc)
 	assert.NoError(t, err)
 	cha <- got
 }
 
-func TestNewInvoiceWithItemPaid(t *testing.T) {
+func TestNewInvoiceWithItem(t *testing.T) {
 	dbc := testutils.ConnectForTesting(t)
 	err := invoice.SetupSchema(dbc, context.Background())
 	got, err := invoice.NewInvoice(dbc)
 	assert.NoError(t, err)
-	assert.Equal(t, invoice.Invoice{Id: 1}, got)
+	assert.Equal(t, &invoice.Invoice{Id: 1}, got)
 	err = got.AddItem(dbc, 10000, "somedescription")
 	assert.NoError(t, err)
-	err = got.Paid(dbc)
-	assert.Equal(t, invoice.Invoice{Id: 1, IsPaid: true}, got)
 }

@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	_ "github.com/jbarham/gopgsqldriver"
+	_ "github.com/lib/pq"
 )
 
 var host = flag.String("databaseHost", "localhost", "the host dns")

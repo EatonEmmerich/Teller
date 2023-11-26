@@ -2,11 +2,6 @@
 _It's not a computer, It's a Teller_
 
 ## Prerequisites
-libpqxx:
-```shell
-export C_INCLUDE_PATH="/opt/homebrew/opt/libpq/include:/opt/homebrew/Cellar/libpqxx/include" 
-```
-
 postgresql:
 ```shell
 psql -d postgres -c "CREATE DATABASE test;"
